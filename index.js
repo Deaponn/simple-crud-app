@@ -1,7 +1,8 @@
 const express = require("express");
+const db = require("./db-setup.js");
 
 const {
-    parsed: { FORECAST_API_KEY, EXCHANGE_API_KEY, DATABASE_URL, DATABASE_NAME },
+    parsed: { FORECAST_API_KEY, EXCHANGE_API_KEY },
 } = require("dotenv").config();
 
 const app = express();
@@ -12,5 +13,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+    console.log(`Server is listening on port ${port}`);
 });
