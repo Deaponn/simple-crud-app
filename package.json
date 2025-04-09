@@ -1,0 +1,11 @@
+{
+    "dependencies": {
+        "dotenv": "^16.4.7",
+        "express": "^5.1.0",
+        "pg-promise": "^11.13.0"
+    },
+    "scripts": {
+        "dev": "node index.js",
+        "db-setup": "node db-setup.js"
+    }
+}
