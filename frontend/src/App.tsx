@@ -31,6 +31,8 @@ const places = [
     },
 ];
 
+// const places: {id: number; name: string; country: string}[] = [];
+
 export function App() {
     const [activeCreator, setActiveCreator] = useState<string>("meeting-creator");
     

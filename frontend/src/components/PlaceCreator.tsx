@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import "./PlaceCreator.css";
+import { createPlace } from "../utils/network";
 
 // TODO: move legalPlaces to common file with PlacePicker
 interface IPlaceCreator {
@@ -16,13 +17,20 @@ export default function PlaceCreator({ legalPlaces }: IPlaceCreator) {
 
     const countries = [...new Set(legalPlaces.map(({ country }) => country))];
 
+    const handlePlaceCreation = useCallback(() => {
+        createPlace(placeName, countryName);
+    }, [placeName, countryName]);
+
+    const capitalize = useCallback((str: string) => str.charAt(0).toUpperCase() + str.slice(1), []);
+
     return (
         <div className="place-creator">
             <label htmlFor="new-country">Country name</label>
             <input
                 type="text"
                 placeholder="country..."
-                onInput={(e) => setCountryName(e.currentTarget.value)}
+                value={countryName}
+                onInput={(e) => setCountryName(capitalize(e.currentTarget.value))}
             />
             {countries.includes(countryName)
                 ? "Creating place in existing country"
@@ -31,13 +39,26 @@ export default function PlaceCreator({ legalPlaces }: IPlaceCreator) {
             <input
                 type="text"
                 placeholder="place..."
-                onInput={(e) => setPlaceName(e.currentTarget.value)}
+                value={placeName}
+                onInput={(e) => setPlaceName(capitalize(e.currentTarget.value))}
             />
             {legalPlaces.filter(
                 ({ name, country }) => placeName === name && country === countryName
             ).length > 0
                 ? "This place already exists"
                 : "Place will be created"}
+            <input
+                type="button"
+                value="Create new place"
+                disabled={
+                    countryName.length < 3 ||
+                    placeName.length < 3 ||
+                    legalPlaces.filter(
+                        ({ name, country }) => placeName === name && country === countryName
+                    ).length > 0
+                }
+                onClick={handlePlaceCreation}
+            />
         </div>
     );
 }

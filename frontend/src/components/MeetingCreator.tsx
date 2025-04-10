@@ -1,5 +1,7 @@
+import { useCallback, useState } from "react";
 import "./MeetingCreator.css";
 import PlacePicker from "./PlacePicker";
+import { createMeeting } from "../utils/network";
 
 // TODO: move legalPlaces to common file with PlacePicker
 interface IMeetingCreator {
@@ -11,15 +13,64 @@ interface IMeetingCreator {
 }
 
 export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
+    const [title, setTitle] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [time, setTime] = useState<string>("");
+
+    // undefined when no countries exist
+    const [selectedCountry, setSelectedCountry] = useState<string | undefined>(
+        legalPlaces.length > 0 ? legalPlaces[0].country : undefined
+    );
+    const [selectedPlaceId, setSelectedPlaceId] = useState<number | undefined>(
+        legalPlaces.length > 0 ? legalPlaces[0].id : undefined
+    );
+
+    const handleMeetingCreation = useCallback(() => {
+        createMeeting(title, description, selectedPlaceId!, time)
+    }, [title, description, selectedPlaceId, time]);
+
     return (
         <div className="meeting-creator">
             <label htmlFor="title">Meeting title</label>
-            <input id="title" type="text" placeholder="title..." />
+            <input
+                id="title"
+                type="text"
+                placeholder="title..."
+                value={title}
+                onChange={(e) => setTitle(e.currentTarget.value)}
+            />
             <label htmlFor="description">Description</label>
-            <textarea id="description" placeholder="description..."></textarea>
+            <textarea
+                id="description"
+                placeholder="description..."
+                value={description}
+                onChange={(e) => setDescription(e.currentTarget.value)}
+            ></textarea>
             <label htmlFor="time">Time of meeting</label>
-            <input id="time" type="datetime-local" />
-            <PlacePicker legalPlaces={legalPlaces} />
+            <input
+                id="time"
+                type="datetime-local"
+                value={time}
+                onChange={(e) => setTime(e.currentTarget.value)}
+            />
+            <PlacePicker
+                legalPlaces={legalPlaces}
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
+                selectedPlaceId={selectedPlaceId}
+                setSelectedPlaceId={setSelectedPlaceId}
+            />
+            <input
+                type="button"
+                value="Create new meeting"
+                disabled={
+                    title.length < 3 ||
+                    description.length < 3 ||
+                    time.length < 3 ||
+                    selectedPlaceId === undefined
+                }
+                onClick={handleMeetingCreation}
+            />
         </div>
     );
 }
