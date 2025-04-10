@@ -1,0 +1,4 @@
+.place-creator {
+    display: flex;
+    flex-direction: column;
+}
