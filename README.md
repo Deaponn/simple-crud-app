@@ -4,6 +4,8 @@ Made using React + Typescript and Express.js
 
 ## Usage
 
+! VERY IMPORTANT ! Use english country names and place names (places ideally should be city names)
+
 1. `git clone https://github.com/Deaponn/simple-crud-app.git`
 
 2. `cd simple-crud-app`
@@ -24,5 +26,7 @@ Made using React + Typescript and Express.js
 3. Connect with the application via browser on localhost:1234
 
 ## Live demo
+
+! VERY IMPORTANT ! Use english country names and place names (places ideally should be city names)
 
 [Simple CRUD App](http://app.sajecki.ct8.pl)
