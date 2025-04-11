@@ -10,6 +10,7 @@ export type MeetingData = {
     description: string;
     time: string;
     name: string;
+    place_id: string;
     country_name: string;
     temperature: string;
     temperature_feelslike: string;

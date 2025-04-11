@@ -2,7 +2,12 @@ html {
   color-scheme: light dark;
   font-family: system-ui;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   height: 100%;
+}
+
+body {
+  width: 20%;
+  padding-bottom: 50px;
 }

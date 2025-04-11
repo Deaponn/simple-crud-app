@@ -18,6 +18,30 @@ const sendPostRequest = async <T>(endpoint: string, body: object): Promise<T> =>
     return result;
 };
 
+const sendPatchRequest = async <T>(endpoint: string, body: object): Promise<T> => {
+    const response = await fetch(`${process.env.SERVER_URL}${endpoint}`, {
+        method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+    const result = await response.json();
+    return result;
+};
+
+const sendDeleteRequest = async <T>(endpoint: string, body: object): Promise<T> => {
+    const response = await fetch(`${process.env.SERVER_URL}${endpoint}`, {
+        method: "DELETE",
+        headers: {
+            "Content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+    const result = await response.json();
+    return result;
+};
+
 export const getMeetings = async () => {
     return await sendGetRequest<{ success: boolean; meetings: MeetingData[] }>("/api/meeting");
 };
@@ -25,7 +49,7 @@ export const getMeetings = async () => {
 export const createMeeting = async (
     title: string,
     description: string,
-    place_id: number,
+    placeId: number,
     time: string
 ): Promise<number> => {
     try {
@@ -34,7 +58,7 @@ export const createMeeting = async (
             {
                 title,
                 description,
-                place_id,
+                placeId,
                 time,
             }
         );
@@ -44,6 +68,30 @@ export const createMeeting = async (
     }
     return -1;
 };
+
+export const patchMeeting = async (
+    id: number,
+    title: string,
+    description: string,
+    placeId: number,
+    time: string
+) => {
+    const response = await sendPatchRequest<{ success: boolean; meeting_id: number }>(
+        "/api/meeting",
+        {
+            id,
+            title,
+            description,
+            placeId,
+            time,
+        }
+    );
+    return response.meeting_id;
+};
+
+export const deleteMeeting = async (meetingId: number) => {
+    return await sendDeleteRequest("/api/meeting", { meetingId });
+}
 
 export const getPlaces = async () => {
     return await sendGetRequest<{ success: boolean; places: LegalPlace[] }>("/api/place");

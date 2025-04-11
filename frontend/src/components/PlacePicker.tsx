@@ -4,16 +4,16 @@ import "./PlacePicker.css";
 interface IPlacePicker {
     legalPlaces: LegalPlace[];
     selectedCountry: string | undefined; // undefined when there are no places created yet
-    setSelectedCountry: React.Dispatch<React.SetStateAction<string | undefined>>;
     selectedPlaceId: number | undefined;
+    setSelectedCountry: React.Dispatch<React.SetStateAction<string | undefined>>;
     setSelectedPlaceId: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
 export default function PlacePicker({
     legalPlaces,
     selectedCountry,
-    setSelectedCountry,
     selectedPlaceId,
+    setSelectedCountry,
     setSelectedPlaceId,
 }: IPlacePicker) {
     const countries = [...new Set(legalPlaces.map(({ country }) => country))];
@@ -25,7 +25,14 @@ export default function PlacePicker({
                 <select
                     id="country-select"
                     value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.currentTarget.value)}
+                    onChange={(e) => {
+                        setSelectedCountry(e.currentTarget.value);
+                        setSelectedPlaceId(
+                            legalPlaces.filter(
+                                ({ country }) => country === e.currentTarget.value
+                            )[0].id
+                        );
+                    }}
                 >
                     {selectedCountry ? (
                         countries.map((country) => (
@@ -39,9 +46,7 @@ export default function PlacePicker({
                 </select>
             </div>
             <div className="place-select">
-                <label htmlFor="place-select">
-                    Place
-                </label>
+                <label htmlFor="place-select">Place</label>
                 <select
                     id="place-select"
                     value={selectedPlaceId}

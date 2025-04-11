@@ -6,37 +6,38 @@ import { LegalPlace } from "../utils/model";
 
 interface IMeetingCreator {
     legalPlaces: LegalPlace[];
+    selectedCountry: string | undefined;
+    selectedPlaceId: number | undefined;
+    title: string;
+    description: string;
+    time: string;
+    setSelectedCountry: React.Dispatch<React.SetStateAction<string | undefined>>;
+    setSelectedPlaceId: React.Dispatch<React.SetStateAction<number | undefined>>;
+    setTitle: React.Dispatch<React.SetStateAction<string>>;
+    setDescription: React.Dispatch<React.SetStateAction<string>>;
+    setTime: React.Dispatch<React.SetStateAction<string>>;
+    hideButton?: boolean;
 }
 
-export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
+export default function MeetingCreator({
+    legalPlaces,
+    selectedCountry,
+    selectedPlaceId,
+    title,
+    description,
+    time,
+    setSelectedCountry,
+    setSelectedPlaceId,
+    setTitle,
+    setDescription,
+    setTime,
+    hideButton,
+}: IMeetingCreator) {
     const date = new Date();
 
     const today = date.toISOString().slice(0, 16);
     date.setDate(date.getDate() + 3);
     const inThreeDays = date.toISOString().slice(0, 16);
-
-    const [title, setTitle] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
-    const [time, setTime] = useState<string>(today);
-
-    // undefined when no countries exist
-    const [selectedCountry, setSelectedCountry] = useState<string | undefined>(
-        legalPlaces.length > 0 ? legalPlaces[0].country : undefined
-    );
-    const [selectedPlaceId, setSelectedPlaceId] = useState<number | undefined>(
-        legalPlaces.length > 0 ? legalPlaces[0].id : undefined
-    );
-
-    useEffect(() => {
-        if (
-            legalPlaces.length == 0 ||
-            selectedCountry !== undefined ||
-            selectedPlaceId !== undefined
-        )
-            return;
-        setSelectedCountry(legalPlaces[0].country);
-        setSelectedPlaceId(legalPlaces[0].id);
-    }, [legalPlaces]);
 
     const handleMeetingCreation = useCallback(() => {
         createMeeting(title, description, selectedPlaceId!, time);
@@ -71,21 +72,23 @@ export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
             <PlacePicker
                 legalPlaces={legalPlaces}
                 selectedCountry={selectedCountry}
-                setSelectedCountry={setSelectedCountry}
                 selectedPlaceId={selectedPlaceId}
+                setSelectedCountry={setSelectedCountry}
                 setSelectedPlaceId={setSelectedPlaceId}
             />
-            <input
-                type="button"
-                value="Create new meeting"
-                disabled={
-                    title.length < 3 ||
-                    description.length < 3 ||
-                    time.length < 3 ||
-                    selectedPlaceId === undefined
-                }
-                onClick={handleMeetingCreation}
-            />
+            {hideButton ? null : (
+                <input
+                    type="button"
+                    value="Create new meeting"
+                    disabled={
+                        title.length < 3 ||
+                        description.length < 3 ||
+                        time.length < 3 ||
+                        selectedPlaceId === undefined
+                    }
+                    onClick={handleMeetingCreation}
+                />
+            )}
         </div>
     );
 }

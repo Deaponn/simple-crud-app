@@ -1,0 +1,35 @@
+.meeting {
+    position: relative;
+    border: 3px solid rgb(60, 60, 60);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.meeting .main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.meeting .main-info h2, .meeting .main-info h3 {
+    margin: 0;
+}
+
+.edit-button, .delete-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    left: -45px;
+}
+
+.edit-button {
+    top: 0px;
+}
+
+.delete-button {
+    top: 45px;
+}

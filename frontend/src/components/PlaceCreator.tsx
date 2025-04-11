@@ -8,6 +8,7 @@ interface IPlaceCreator {
     refreshPlaces: () => Promise<void>;
 }
 
+// TODO: handle error from server
 export default function PlaceCreator({ legalPlaces, refreshPlaces }: IPlaceCreator) {
     const [countryName, setCountryName] = useState<string>("");
     const [placeName, setPlaceName] = useState<string>("");

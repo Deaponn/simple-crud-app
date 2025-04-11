@@ -1,6 +1,15 @@
 const express = require("express");
 const cors = require("cors");
-const { addMeeting, addPlace, getPlaces, getPlace, addForecast, getMeetings } = require("./lib/db-operations");
+const {
+    addMeeting,
+    addPlace,
+    getPlaces,
+    getPlace,
+    addForecast,
+    getMeetings,
+    updateMeeting,
+    deleteMeeting,
+} = require("./lib/db-operations");
 const { fetchForecast } = require("./lib/api-requests");
 
 const {
@@ -26,16 +35,28 @@ app.get("/api/meeting", async (req, res) => {
 
 // TODO: validate user input
 app.post("/api/meeting", async (req, res) => {
-    const { title, description, place_id, time } = req.body;
+    const { title, description, placeId, time } = req.body;
 
-    const place = await getPlace(place_id);
+    const place = await getPlace(placeId);
     if (!place.success) return res.status(400).send(place);
 
     const forecast = await fetchForecast(place.name, place.country, time, FORECAST_API_KEY);
     const { id: forecastId } = await addForecast(place.id, forecast);
-    const { id: meetingId } = await addMeeting(title, description, time, place_id, forecastId);
+    const { id: meetingId } = await addMeeting(title, description, time, placeId, forecastId);
 
     res.status(201).send({ success: true, meetingId });
+});
+
+app.patch("/api/meeting", async (req, res) => {
+    const { id, title, description, time, placeId } = req.body;
+    console.log("updating", id, title, description, time, placeId);
+    const response = await updateMeeting(id, title, description, time, placeId);
+    res.status(200).send(response);
+});
+
+app.delete("/api/meeting", async (req, res) => {
+    const response = deleteMeeting(req.body.meetingId);
+    res.status(200).send(response);
 });
 
 app.get("/api/place", async (req, res) => {

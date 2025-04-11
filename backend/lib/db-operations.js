@@ -2,7 +2,7 @@ const db = require("./db-setup.js");
 
 const roundToNDigits = (num, d) => Math.round(num * 10 ** d) / 10 ** d;
 
-const whitelistedColumns= ["id", "title", "time", "name", "country_name"];
+const whitelistedColumns = ["id", "title", "time", "name", "country_name"];
 
 const getMeetings = async (pageNumber, perPage, sortByColumn, orderBy) => {
     const order = orderBy == "ASC" ? "ASC" : "DESC";
@@ -14,7 +14,7 @@ const getMeetings = async (pageNumber, perPage, sortByColumn, orderBy) => {
             `
             SELECT
                 m.id, m.title, m.description, m.time,
-                p.name,
+                p.name, p.id AS place_id,
                 c.name AS country_name,
                 f.temperature, f.temperature_feelslike, f.will_rain, f.rain_chance,
                 f.wind_speed, f.pressure, f.aq_co, f.aq_no2, f.aq_pm2_5, f.aq_pm10
@@ -42,6 +42,32 @@ const addMeeting = async (title, description, time, placeId, forecastId) => {
     );
 
     return meetingId;
+};
+
+// TODO: update forecast aswell
+const updateMeeting = async (id, title, description, time, placeId) => {
+    await db.none(
+        `
+        UPDATE meetings 
+        SET title = $1, description = $2, place_id = $3, time = $4
+        WHERE meetings.id = $5
+    `,
+        [title, description, placeId, time, id]
+    );
+
+    return { success: true };
+};
+
+const deleteMeeting = async (id) => {
+    await db.none(
+        `
+        DELETE FROM meetings
+        WHERE meetings.id = $1
+    `,
+        [id]
+    );
+
+    return { success: true };
 };
 
 const getPlaces = async () => {
@@ -150,6 +176,8 @@ const addForecast = async (placeId, forecast) => {
 module.exports = {
     getMeetings,
     addMeeting,
+    updateMeeting,
+    deleteMeeting,
     getPlace,
     getPlaces,
     addPlace,
