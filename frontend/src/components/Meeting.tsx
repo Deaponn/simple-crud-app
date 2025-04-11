@@ -7,6 +7,7 @@ import { deleteMeeting, patchMeeting } from "../utils/network";
 interface IMeeting {
     meeting: MeetingData;
     legalPlaces: LegalPlace[];
+    fetchMeetings: () => Promise<void>;
 }
 
 export default function Meeting({
@@ -30,6 +31,7 @@ export default function Meeting({
         aq_pm10,
     },
     legalPlaces,
+    fetchMeetings,
 }: IMeeting) {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -52,19 +54,27 @@ export default function Meeting({
         setSelectedPlaceId(legalPlaces[0].id);
     }, [legalPlaces]);
 
-    const handleToggleEditing = useCallback(() => {
-        if (isEditing) patchMeeting(id, title, description, selectedPlaceId!, time);
+    const handleToggleEditing = useCallback(async () => {
+        if (isEditing) {
+            await patchMeeting(id, title, description, selectedPlaceId!, time);
+            fetchMeetings();
+        }
         setIsEditing((oldEditing) => !oldEditing);
     }, [isEditing, title, description, selectedPlaceId!, time]);
 
-    const handleDelete = useCallback(() => deleteMeeting(id), []);
+    const handleDelete = useCallback(async () => {
+        await deleteMeeting(id);
+        fetchMeetings();
+    }, []);
 
     return (
         <div className="meeting">
             <div className="edit-button" onClick={handleToggleEditing}>
                 {isEditing ? "Save" : "Edit"}
             </div>
-            <div className="delete-button" onClick={handleDelete}>Delete</div>
+            <div className="delete-button" onClick={handleDelete}>
+                Del
+            </div>
             {!isEditing ? (
                 <>
                     <div className="main-info">
@@ -116,6 +126,7 @@ export default function Meeting({
                     setTitle={setTitle}
                     setDescription={setDescription}
                     setTime={setTime}
+                    fetchMeetings={fetchMeetings}
                     hideButton={true}
                 />
             )}

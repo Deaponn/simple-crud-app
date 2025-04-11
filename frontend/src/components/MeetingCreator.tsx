@@ -16,6 +16,7 @@ interface IMeetingCreator {
     setTitle: React.Dispatch<React.SetStateAction<string>>;
     setDescription: React.Dispatch<React.SetStateAction<string>>;
     setTime: React.Dispatch<React.SetStateAction<string>>;
+    fetchMeetings: () => Promise<void>;
     hideButton?: boolean;
 }
 
@@ -31,6 +32,7 @@ export default function MeetingCreator({
     setTitle,
     setDescription,
     setTime,
+    fetchMeetings,
     hideButton,
 }: IMeetingCreator) {
     const date = new Date();
@@ -41,6 +43,21 @@ export default function MeetingCreator({
 
     const handleMeetingCreation = useCallback(() => {
         createMeeting(title, description, selectedPlaceId!, time);
+        fetchMeetings();
+    }, [title, description, selectedPlaceId, time]);
+
+    const handleRandomMeetingCreation = useCallback(() => {
+        const randomTitles = ["Meeting", "Training", "Date", "Movie night"];
+        const randomDescriptions = ["With coworkers", "With gymbro", "With wife", "With friends"];
+        const maxPlaceId = Math.max(...legalPlaces.map(({ id }) => id));
+
+        createMeeting(
+            randomTitles[Math.floor(Math.random() * randomTitles.length)],
+            randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)],
+            Math.floor(Math.random() * (maxPlaceId - 1)) + 1,
+            time
+        );
+        fetchMeetings();
     }, [title, description, selectedPlaceId, time]);
 
     return (
@@ -87,6 +104,13 @@ export default function MeetingCreator({
                         selectedPlaceId === undefined
                     }
                     onClick={handleMeetingCreation}
+                />
+            )}
+            {hideButton ? null : (
+                <input
+                    type="button"
+                    value="Create random meeting"
+                    onClick={handleRandomMeetingCreation}
                 />
             )}
         </div>

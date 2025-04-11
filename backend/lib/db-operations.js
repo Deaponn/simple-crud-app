@@ -5,11 +5,18 @@ const roundToNDigits = (num, d) => Math.round(num * 10 ** d) / 10 ** d;
 const whitelistedColumns = ["id", "title", "time", "name", "country_name"];
 
 const getMeetings = async (pageNumber, perPage, sortByColumn, orderBy) => {
+    const { sum: meetingsCount } = await db.one(`
+        SELECT SUM(1) FROM meetings 
+    `);
+
     const order = orderBy == "ASC" ? "ASC" : "DESC";
     const sortBy = whitelistedColumns.includes(sortByColumn) ? sortByColumn : "id";
 
     return {
         success: true,
+        page: pageNumber,
+        perPage,
+        pages: Math.ceil(meetingsCount / perPage),
         meetings: await db.manyOrNone(
             `
             SELECT

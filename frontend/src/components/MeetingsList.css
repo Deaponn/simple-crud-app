@@ -1,3 +1,7 @@
 .meetings-list {
     margin-top: 10px;
 }
+
+.meetings-list div input {
+    width: 40px;
+}

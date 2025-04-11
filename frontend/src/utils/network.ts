@@ -42,8 +42,14 @@ const sendDeleteRequest = async <T>(endpoint: string, body: object): Promise<T> 
     return result;
 };
 
-export const getMeetings = async () => {
-    return await sendGetRequest<{ success: boolean; meetings: MeetingData[] }>("/api/meeting");
+export const getMeetings = async (page: number, perPage: number) => {
+    return await sendGetRequest<{
+        success: boolean;
+        meetings: MeetingData[];
+        page: number;
+        perPage: number;
+        pages: number;
+    }>(`/api/meeting?page=${page}&perPage=${perPage}`);
 };
 
 export const createMeeting = async (
@@ -91,7 +97,7 @@ export const patchMeeting = async (
 
 export const deleteMeeting = async (meetingId: number) => {
     return await sendDeleteRequest("/api/meeting", { meetingId });
-}
+};
 
 export const getPlaces = async () => {
     return await sendGetRequest<{ success: boolean; places: LegalPlace[] }>("/api/place");

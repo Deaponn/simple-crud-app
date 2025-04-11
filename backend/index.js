@@ -28,9 +28,9 @@ app.get("/api/meeting", async (req, res) => {
     const sortBy = req.query.sortBy ?? "time";
     const orderBy = req.query.orderBy ?? "DESC";
 
-    const meetings = await getMeetings(pageNumber, perPage, sortBy, orderBy);
+    const response = await getMeetings(pageNumber, perPage, sortBy, orderBy);
 
-    res.status(200).send(meetings);
+    res.status(200).send(response);
 });
 
 // TODO: validate user input
@@ -49,7 +49,6 @@ app.post("/api/meeting", async (req, res) => {
 
 app.patch("/api/meeting", async (req, res) => {
     const { id, title, description, time, placeId } = req.body;
-    console.log("updating", id, title, description, time, placeId);
     const response = await updateMeeting(id, title, description, time, placeId);
     res.status(200).send(response);
 });
