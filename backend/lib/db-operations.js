@@ -1,11 +1,45 @@
 const db = require("./db-setup.js");
 
+const roundToNDigits = (num, d) => Math.round(num * 10 ** d) / 10 ** d;
+
+const whitelistedColumns= ["id", "title", "time", "name", "country_name"];
+
+const getMeetings = async (pageNumber, perPage, sortByColumn, orderBy) => {
+    const order = orderBy == "ASC" ? "ASC" : "DESC";
+    const sortBy = whitelistedColumns.includes(sortByColumn) ? sortByColumn : "id";
+
+    return {
+        success: true,
+        meetings: await db.manyOrNone(
+            `
+            SELECT
+                m.id, m.title, m.description, m.time,
+                p.name,
+                c.name AS country_name,
+                f.temperature, f.temperature_feelslike, f.will_rain, f.rain_chance,
+                f.wind_speed, f.pressure, f.aq_co, f.aq_no2, f.aq_pm2_5, f.aq_pm10
+            FROM meetings AS m
+            INNER JOIN places AS p ON m.place_id = p.id
+            INNER JOIN countries AS c ON p.country_id = c.id
+            INNER JOIN forecasts AS f ON m.forecast_id = f.id
+            ORDER BY ${sortBy} ${order}
+            LIMIT $1
+            OFFSET $2
+        `,
+            [perPage, pageNumber * perPage]
+        ),
+    };
+};
+
 const addMeeting = async (title, description, time, placeId, forecastId) => {
-    const meetingId = await db.one(`
+    const meetingId = await db.one(
+        `
         INSERT INTO meetings(title, description, place_id, forecast_id, time)
         VALUES($1, $2, $3, $4, $5)
         RETURNING id;
-    `, [title, description, placeId, forecastId, time]);
+    `,
+        [title, description, placeId, forecastId, time]
+    );
 
     return meetingId;
 };
@@ -36,6 +70,7 @@ const getPlace = async (placeId) => {
     return { success: true, ...place };
 };
 
+// TODO: do it using transactions
 const addPlace = async ({ name, country }) => {
     let countryId = await db.oneOrNone("SELECT id FROM countries WHERE name = $1", [country]);
 
@@ -62,7 +97,7 @@ const addPlace = async ({ name, country }) => {
     return { success: false, error: "Place already exists" };
 };
 
-const addForecast = async (placeId, datetime, forecast) => {
+const addForecast = async (placeId, forecast) => {
     const {
         temp_c,
         feelslike_c,
@@ -80,7 +115,6 @@ const addForecast = async (placeId, datetime, forecast) => {
         `
         INSERT INTO forecasts(
             place_id,
-            time,
             temperature,
             temperature_feelslike,
             will_rain,
@@ -92,22 +126,21 @@ const addForecast = async (placeId, datetime, forecast) => {
             aq_pm2_5,
             aq_pm10
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING id
     `,
         [
             placeId,
-            datetime,
-            temp_c,
-            feelslike_c,
+            roundToNDigits(temp_c, 2),
+            roundToNDigits(feelslike_c, 2),
             will_it_rain == 1,
-            chance_of_rain,
-            wind_kph,
-            pressure_mb,
-            co,
-            no2,
-            pm2_5,
-            pm10,
+            roundToNDigits(chance_of_rain, 1),
+            roundToNDigits(wind_kph, 1),
+            roundToNDigits(pressure_mb, 1),
+            roundToNDigits(co, 2),
+            roundToNDigits(no2, 3),
+            roundToNDigits(pm2_5, 3),
+            roundToNDigits(pm10, 2),
         ]
     );
 
@@ -115,6 +148,7 @@ const addForecast = async (placeId, datetime, forecast) => {
 };
 
 module.exports = {
+    getMeetings,
     addMeeting,
     getPlace,
     getPlaces,

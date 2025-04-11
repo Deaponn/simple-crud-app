@@ -1,4 +1,4 @@
-import { LegalPlace } from "./model";
+import { LegalPlace, MeetingData } from "./model";
 
 const sendGetRequest = async <T>(endpoint: string): Promise<T> => {
     const response = await fetch(`${process.env.SERVER_URL}${endpoint}`);
@@ -16,6 +16,10 @@ const sendPostRequest = async <T>(endpoint: string, body: object): Promise<T> =>
     });
     const result = await response.json();
     return result;
+};
+
+export const getMeetings = async () => {
+    return await sendGetRequest<{ success: boolean; meetings: MeetingData[] }>("/api/meeting");
 };
 
 export const createMeeting = async (

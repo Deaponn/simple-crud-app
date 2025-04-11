@@ -19,7 +19,7 @@ const setup = async (db) => {
         `);
         else if (e.code === "42P01") {
             console.log("Setting up all required tables and relations");
-            const query = await readFile("./db-setup-query.sql", { encoding: "utf-8" });
+            const query = await readFile("./lib/db-setup-query.sql", { encoding: "utf-8" });
             const _ = await db.none(query);
             console.log("Created all tables and relations successfully");
         } else 

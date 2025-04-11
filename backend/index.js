@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-const { addMeeting, addPlace, getPlaces, getPlace, addForecast } = require("./lib/db-operations");
+const { addMeeting, addPlace, getPlaces, getPlace, addForecast, getMeetings } = require("./lib/db-operations");
 const { fetchForecast } = require("./lib/api-requests");
 
 const {
-    parsed: { FORECAST_API_KEY, EXCHANGE_API_KEY },
+    parsed: { FORECAST_API_KEY },
 } = require("dotenv").config();
 
 const app = express();
@@ -12,6 +12,17 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/api/meeting", async (req, res) => {
+    const pageNumber = req.query.page ?? 0;
+    const perPage = req.query.perPage ?? 5;
+    const sortBy = req.query.sortBy ?? "time";
+    const orderBy = req.query.orderBy ?? "DESC";
+
+    const meetings = await getMeetings(pageNumber, perPage, sortBy, orderBy);
+
+    res.status(200).send(meetings);
+});
 
 // TODO: validate user input
 app.post("/api/meeting", async (req, res) => {
@@ -21,7 +32,7 @@ app.post("/api/meeting", async (req, res) => {
     if (!place.success) return res.status(400).send(place);
 
     const forecast = await fetchForecast(place.name, place.country, time, FORECAST_API_KEY);
-    const { id: forecastId } = await addForecast(place.id, time, forecast);
+    const { id: forecastId } = await addForecast(place.id, forecast);
     const { id: meetingId } = await addMeeting(title, description, time, place_id, forecastId);
 
     res.status(201).send({ success: true, meetingId });
