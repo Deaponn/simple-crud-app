@@ -1,41 +1,23 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import MeetingCreator from "./components/MeetingCreator";
 import PlaceCreator from "./components/PlaceCreator";
-
-const places = [
-    {
-        id: 0,
-        name: "Krakow",
-        country: "Poland",
-    },
-    {
-        id: 1,
-        name: "Warsaw",
-        country: "Poland",
-    },
-    {
-        id: 2,
-        name: "Wroclaw",
-        country: "Poland",
-    },
-    {
-        id: 3,
-        name: "Bonn",
-        country: "Germany",
-    },
-    {
-        id: 4,
-        name: "Berlin",
-        country: "Germany",
-    },
-];
-
-// const places: {id: number; name: string; country: string}[] = [];
+import { getPlaces } from "./utils/network.ts";
+import { LegalPlace } from "./utils/model.ts";
 
 export function App() {
     const [activeCreator, setActiveCreator] = useState<string>("meeting-creator");
-    
+    const [places, setPlaces] = useState<LegalPlace[]>([]);
+
+    const fetchPlaces = useCallback(async () => {
+        const { places: newPlaces } = await getPlaces();
+        setPlaces(newPlaces);
+    }, []);
+
+    useEffect(() => {
+        fetchPlaces();
+    }, []);
+
     return (
         <>
             <h1>Parcel React App</h1>
@@ -60,7 +42,9 @@ export function App() {
             />
 
             {activeCreator === "meeting-creator" ? <MeetingCreator legalPlaces={places} /> : null}
-            {activeCreator === "place-creator" ? <PlaceCreator legalPlaces={places} /> : null}
+            {activeCreator === "place-creator" ? (
+                <PlaceCreator legalPlaces={places} refreshPlaces={fetchPlaces} />
+            ) : null}
         </>
     );
 }

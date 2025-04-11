@@ -1,3 +1,11 @@
+import { LegalPlace } from "./model";
+
+const sendGetRequest = async <T>(endpoint: string): Promise<T> => {
+    const response = await fetch(`${process.env.SERVER_URL}${endpoint}`);
+    const result = await response.json();
+    return result;
+};
+
 const sendPostRequest = async <T>(endpoint: string, body: object): Promise<T> => {
     const response = await fetch(`${process.env.SERVER_URL}${endpoint}`, {
         method: "POST",
@@ -15,17 +23,26 @@ export const createMeeting = async (
     description: string,
     place_id: number,
     time: string
-) => {
+): Promise<number> => {
     try {
-        const response = await sendPostRequest<{ success: boolean }>("/api/meeting", {
-            title,
-            description,
-            place_id,
-            time,
-        });
+        const response = await sendPostRequest<{ success: boolean; meeting_id: number }>(
+            "/api/meeting",
+            {
+                title,
+                description,
+                place_id,
+                time,
+            }
+        );
+        return response.meeting_id;
     } catch (e) {
         console.log(e);
     }
+    return -1;
+};
+
+export const getPlaces = async () => {
+    return await sendGetRequest<{ success: boolean; places: LegalPlace[] }>("/api/place");
 };
 
 export const createPlace = async (name: string, country: string): Promise<number> => {

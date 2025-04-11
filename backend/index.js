@@ -1,6 +1,6 @@
 const express = require("express");
-const db = require("./lib/db-setup.js");
 const cors = require("cors");
+const { addMeeting, addPlace, getPlaces } = require("./lib/db-operations");
 
 const {
     parsed: { FORECAST_API_KEY, EXCHANGE_API_KEY },
@@ -21,9 +21,16 @@ app.post("/api/meeting", (req, res) => {
     res.status(201).send({ success: true });
 });
 
-app.post("/api/place", (req, res) => {
-    console.log(req.body);
-    res.status(201).send({ success: true });
+app.get("/api/place", async (req, res) => {
+    const result = await getPlaces();
+    if (result.success) res.status(200).send(result);
+    else res.status(500).send(result.error);
+});
+
+app.post("/api/place", async (req, res) => {
+    const result = await addPlace(req.body);
+    if (result.success) res.status(201).send(result);
+    else res.status(409).send(result.error);
 });
 
 app.listen(port, () => {

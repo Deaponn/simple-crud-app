@@ -1,24 +1,22 @@
 import { useCallback, useState } from "react";
 import "./PlaceCreator.css";
 import { createPlace } from "../utils/network";
+import { LegalPlace } from "../utils/model";
 
-// TODO: move legalPlaces to common file with PlacePicker
 interface IPlaceCreator {
-    legalPlaces: {
-        id: number;
-        name: string;
-        country: string;
-    }[];
+    legalPlaces: LegalPlace[];
+    refreshPlaces: () => Promise<void>;
 }
 
-export default function PlaceCreator({ legalPlaces }: IPlaceCreator) {
+export default function PlaceCreator({ legalPlaces, refreshPlaces }: IPlaceCreator) {
     const [countryName, setCountryName] = useState<string>("");
     const [placeName, setPlaceName] = useState<string>("");
 
     const countries = [...new Set(legalPlaces.map(({ country }) => country))];
 
-    const handlePlaceCreation = useCallback(() => {
-        createPlace(placeName, countryName);
+    const handlePlaceCreation = useCallback(async () => {
+        await createPlace(placeName, countryName);
+        refreshPlaces();
     }, [placeName, countryName]);
 
     const capitalize = useCallback((str: string) => str.charAt(0).toUpperCase() + str.slice(1), []);

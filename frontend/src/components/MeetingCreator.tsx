@@ -1,15 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./MeetingCreator.css";
 import PlacePicker from "./PlacePicker";
 import { createMeeting } from "../utils/network";
+import { LegalPlace } from "../utils/model";
 
-// TODO: move legalPlaces to common file with PlacePicker
 interface IMeetingCreator {
-    legalPlaces: {
-        id: number;
-        name: string;
-        country: string;
-    }[];
+    legalPlaces: LegalPlace[];
 }
 
 export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
@@ -25,8 +21,19 @@ export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
         legalPlaces.length > 0 ? legalPlaces[0].id : undefined
     );
 
+    useEffect(() => {
+        if (
+            legalPlaces.length == 0 ||
+            selectedCountry !== undefined ||
+            selectedPlaceId !== undefined
+        )
+            return;
+        setSelectedCountry(legalPlaces[0].country);
+        setSelectedPlaceId(legalPlaces[0].id);
+    }, [legalPlaces]);
+
     const handleMeetingCreation = useCallback(() => {
-        createMeeting(title, description, selectedPlaceId!, time)
+        createMeeting(title, description, selectedPlaceId!, time);
     }, [title, description, selectedPlaceId, time]);
 
     return (

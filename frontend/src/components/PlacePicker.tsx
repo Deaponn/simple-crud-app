@@ -1,11 +1,8 @@
+import { LegalPlace } from "../utils/model";
 import "./PlacePicker.css";
 
 interface IPlacePicker {
-    legalPlaces: {
-        id: number;
-        name: string;
-        country: string;
-    }[];
+    legalPlaces: LegalPlace[];
     selectedCountry: string | undefined; // undefined when there are no places created yet
     setSelectedCountry: React.Dispatch<React.SetStateAction<string | undefined>>;
     selectedPlaceId: number | undefined;
