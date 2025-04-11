@@ -9,9 +9,15 @@ interface IMeetingCreator {
 }
 
 export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
+    const date = new Date();
+
+    const today = date.toISOString().slice(0, 16);
+    date.setDate(date.getDate() + 3);
+    const inThreeDays = date.toISOString().slice(0, 16);
+
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
-    const [time, setTime] = useState<string>("");
+    const [time, setTime] = useState<string>(today);
 
     // undefined when no countries exist
     const [selectedCountry, setSelectedCountry] = useState<string | undefined>(
@@ -57,6 +63,8 @@ export default function MeetingCreator({ legalPlaces }: IMeetingCreator) {
             <input
                 id="time"
                 type="datetime-local"
+                min={today}
+                max={inThreeDays}
                 value={time}
                 onChange={(e) => setTime(e.currentTarget.value)}
             />

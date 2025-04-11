@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const { addMeeting, addPlace, getPlaces } = require("./lib/db-operations");
+const { addMeeting, addPlace, getPlaces, getPlace, addForecast } = require("./lib/db-operations");
+const { fetchForecast } = require("./lib/api-requests");
 
 const {
     parsed: { FORECAST_API_KEY, EXCHANGE_API_KEY },
@@ -12,13 +13,18 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+// TODO: validate user input
+app.post("/api/meeting", async (req, res) => {
+    const { title, description, place_id, time } = req.body;
 
-app.post("/api/meeting", (req, res) => {
-    console.log(req.body);
-    res.status(201).send({ success: true });
+    const place = await getPlace(place_id);
+    if (!place.success) return res.status(400).send(place);
+
+    const forecast = await fetchForecast(place.name, place.country, time, FORECAST_API_KEY);
+    const { id: forecastId } = await addForecast(place.id, time, forecast);
+    const { id: meetingId } = await addMeeting(title, description, time, place_id, forecastId);
+
+    res.status(201).send({ success: true, meetingId });
 });
 
 app.get("/api/place", async (req, res) => {
@@ -27,6 +33,7 @@ app.get("/api/place", async (req, res) => {
     else res.status(500).send(result.error);
 });
 
+// TODO: validate user input
 app.post("/api/place", async (req, res) => {
     const result = await addPlace(req.body);
     if (result.success) res.status(201).send(result);

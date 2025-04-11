@@ -7,9 +7,9 @@ const { readFile } = require("node:fs/promises");
 const setup = async (db) => {
     try {
         const c = await db.connect(); // try to connect
-        c.done(); // success, release connection
+        c.done();
         console.log("Database exists");
-        const _ = await db.none("SELECT 1 FROM meetings");
+        const _ = await db.manyOrNone("SELECT 1 FROM meetings");
         console.log("Tables and relations are all set up correctly.");
     } catch (e) {
         if (e.code === "3D000")
